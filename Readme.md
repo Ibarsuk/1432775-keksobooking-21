@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Иван](https://up.htmlacademy.ru/javascript/21/user/1432775).
-* Наставник: `Неизвестно`.
+* Наставник: [Ярослав Ермилов](https://up.htmlacademy.ru/javascript/21/user/776985).
 
 ---
 
