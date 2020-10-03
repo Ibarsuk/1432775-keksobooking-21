@@ -55,6 +55,25 @@ const offersTypes = {
   palace: `Дворец `
 };
 
+const minPrices = [
+  {
+    type: `flat`,
+    minPrice: 1000
+  },
+  {
+    type: `bungalow`,
+    minPrice: 0
+  },
+  {
+    type: `house`,
+    minPrice: 5000
+  },
+  {
+    type: `palace`,
+    minPrice: 10000
+  }
+];
+
 const possibleFeatures = [
   `wifi`,
   `dishwasher`,
@@ -126,9 +145,135 @@ const renderCardPopup = (ad) => {
   return newCardPopup;
 };
 
-document.querySelector(`.map`).classList.remove(`map--faded`);
-renderPinsArr();
-renderPins(pins);
+const form = document.querySelector(`.ad-form`);
+const mainPin = pinsContainer.querySelector(`.map__pin--main`);
+const addressInput = form.querySelector(`#address`);
+const titleInput = form.querySelector(`#title`);
+const nightPriceInput = form.querySelector(`#price`);
+const typeInput = form.querySelector(`#type`);
+const roomsInput = form.querySelector(`#room_number`);
+const guestsInput = form.querySelector(`#capacity`);
+
+const getCoords = (elem) => {
+  const box = elem.getBoundingClientRect();
+  return {
+    top: box.top + pageYOffset,
+    left: box.left + pageXOffset
+  };
+};
+
+const setMainPinAddress = () => {
+  const mainPinDiameter = mainPin.offsetWidth;
+  const mainPinCoords = getCoords(mainPin);
+  if (map.classList.contains(`map--faded`)) {
+    addressInput.value = `${Math.round(mainPinCoords.left + mainPinDiameter / 2)}, ${Math.round(mainPinCoords.top + mainPinDiameter / 2)}`;
+  } else {
+    addressInput.value = `${Math.round(mainPinCoords.left + mainPinDiameter / 2)}, ${Math.round(mainPinCoords.top + PIN_HEIGHT)}`;
+  }
+};
+
+const onMainPinActivate = (evt) => {
+  if (evt.button === 0 || evt.key === `Enter`) {
+    renderPinsArr();
+    renderPins(pins);
+    map.classList.remove(`map--faded`);
+    setMainPinAddress();
+    disableElements(true, guestsInput.children);
+    form.classList.remove(`ad-form--disabled`);
+    disableElements(false, fieldsets);
+    titleInput.addEventListener(`input`, checkTitleValidity);
+    nightPriceInput.addEventListener(`input`, checkNightPriceValidity);
+    typeInput.addEventListener(`change`, onNightPriceChange);
+    roomsInput.addEventListener(`change`, checkGuestsNumberValidity);
+    mainPin.removeEventListener(`mousedown`, onMainPinActivate);
+    mainPin.removeEventListener(`keydown`, onMainPinActivate);
+  }
+};
+
+mainPin.addEventListener(`mousedown`, onMainPinActivate);
+mainPin.addEventListener(`keydown`, onMainPinActivate);
+
+const fieldsets = form.querySelectorAll(`.ad-form__element`);
+const disableElements = (bool, elements) => {
+  for (let fieldset of elements) {
+    fieldset.disabled = bool;
+  }
+  form.querySelector(`.ad-form-header`).disabled = bool;
+};
+
+const checkTitleValidity = () => {
+  const minLength = titleInput.minLength;
+  const maxLength = titleInput.maxLength;
+  const currentLength = titleInput.value.length;
+  if (currentLength < minLength) {
+    titleInput.setCustomValidity(`Минимум ${minLength} симв.`);
+  } else if (currentLength > maxLength) {
+    titleInput.setCustomValidity(`Максимум ${minLength} симв.`);
+  } else {
+    titleInput.setCustomValidity(``);
+  }
+  titleInput.reportValidity();
+};
+
+const getMinPriceAndType = () => {
+  let minPrice = 0;
+  let currentType = ``;
+  for (let i = 0; i < minPrices.length; i++) {
+    if (typeInput.value === minPrices[i].type) {
+      minPrice = minPrices[i].minPrice;
+      currentType = offersTypes[minPrices[i].type];
+    }
+  }
+  return {
+    minPrices: minPrice,
+    currentTypes: currentType
+  };
+};
+
+const checkNightPriceValidity = () => {
+  const minPrice = getMinPriceAndType().minPrices;
+  const currentType = getMinPriceAndType().currentTypes;
+  if (Number(nightPriceInput.value) < minPrice) {
+    nightPriceInput.setCustomValidity(`Минимальная цена для ${currentType} - ${minPrice}`);
+  } else if (Number(nightPriceInput.value) > nightPriceInput.max) {
+    nightPriceInput.setCustomValidity(`Максимальная цена - ${nightPriceInput.max}`);
+  } else {
+    nightPriceInput.setCustomValidity(``);
+  }
+  nightPriceInput.reportValidity();
+};
+
+const onNightPriceChange = () => {
+  nightPriceInput.placeholder = `${getMinPriceAndType().minPrices}`;
+  if (nightPriceInput.value.length > 0) {
+    checkNightPriceValidity();
+  }
+};
+
+const disableGuestsOptions = () => {
+  for (let option of guestsInput.children) {
+    if (Number(option.value) <= Number(roomsInput.value) && roomsInput.value !== `100`) {
+      option.disabled = false;
+    } else {
+      option.disabled = true;
+    }
+  }
+};
+
+const checkGuestsNumberValidity = () => {
+  disableGuestsOptions();
+  if (roomsInput.value === `100`) {
+    form.querySelector(`#capacity option[value="100"]`).disabled = false;
+  }
+  if (Number(guestsInput.value) > Number(roomsInput.value)) {
+    guestsInput.setCustomValidity(`${guestsInput.value} комнаты максимум для ${guestsInput.value} гостей`);
+  } else {
+    guestsInput.setCustomValidity(``);
+  }
+  guestsInput.reportValidity();
+};
+
+setMainPinAddress();
+disableElements(true, fieldsets);
+
 map.appendChild(renderCardPopup(pins[0]));
-
-
