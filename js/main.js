@@ -154,8 +154,8 @@ const typeInput = form.querySelector(`#type`);
 const roomsInput = form.querySelector(`#room_number`);
 const guestsInput = form.querySelector(`#capacity`);
 
-const getCoords = (elem) => {
-  const box = elem.getBoundingClientRect();
+const getCoords = (element) => {
+  const box = element.getBoundingClientRect();
   return {
     top: box.top + pageYOffset,
     left: box.left + pageXOffset
@@ -178,13 +178,14 @@ const onMainPinActivate = (evt) => {
     renderPins(pins);
     map.classList.remove(`map--faded`);
     setMainPinAddress();
-    disableElements(true, guestsInput.children);
+    disableGuestsOptions();
     form.classList.remove(`ad-form--disabled`);
     disableElements(false, fieldsets);
     titleInput.addEventListener(`input`, checkTitleValidity);
     nightPriceInput.addEventListener(`input`, checkNightPriceValidity);
     typeInput.addEventListener(`change`, onNightPriceChange);
     roomsInput.addEventListener(`change`, checkGuestsNumberValidity);
+    guestsInput.addEventListener(`change`, checkGuestsNumberValidity);
     mainPin.removeEventListener(`mousedown`, onMainPinActivate);
     mainPin.removeEventListener(`keydown`, onMainPinActivate);
   }
@@ -194,11 +195,11 @@ mainPin.addEventListener(`mousedown`, onMainPinActivate);
 mainPin.addEventListener(`keydown`, onMainPinActivate);
 
 const fieldsets = form.querySelectorAll(`.ad-form__element`);
-const disableElements = (bool, elements) => {
+const disableElements = (logicalType, elements) => {
   for (let fieldset of elements) {
-    fieldset.disabled = bool;
+    fieldset.disabled = logicalType;
   }
-  form.querySelector(`.ad-form-header`).disabled = bool;
+  form.querySelector(`.ad-form-header`).disabled = logicalType;
 };
 
 const checkTitleValidity = () => {
@@ -252,21 +253,22 @@ const onNightPriceChange = () => {
 
 const disableGuestsOptions = () => {
   for (let option of guestsInput.children) {
-    if (Number(option.value) <= Number(roomsInput.value) && roomsInput.value !== `100`) {
-      option.disabled = false;
-    } else {
-      option.disabled = true;
-    }
+    option.disabled = (Number(option.value) > Number(roomsInput.value) || option.value === `0` || roomsInput.value === `100`);
   }
 };
 
 const checkGuestsNumberValidity = () => {
   disableGuestsOptions();
-  if (roomsInput.value === `100`) {
-    form.querySelector(`#capacity option[value="100"]`).disabled = false;
-  }
-  if (Number(guestsInput.value) > Number(roomsInput.value)) {
-    guestsInput.setCustomValidity(`${guestsInput.value} комнаты максимум для ${guestsInput.value} гостей`);
+  if (roomsInput.value === `100` && guestsInput.value !== `0`) {
+    form.querySelector(`#capacity option[value="0"]`).disabled = false;
+    guestsInput.setCustomValidity(`100 комнат не для гостей`);
+  } else if (roomsInput.value !== `100` && guestsInput.value === `0`) {
+    guestsInput.setCustomValidity(`А для кого?`);
+  } else if (roomsInput.value === `100` && guestsInput.value === `0`) {
+    form.querySelector(`#capacity option[value="0"]`).disabled = false;
+    guestsInput.setCustomValidity(``);
+  } else if (Number(guestsInput.value) > Number(roomsInput.value)) {
+    guestsInput.setCustomValidity(`${roomsInput.value} гостя максимум для ${roomsInput.value} комнат`);
   } else {
     guestsInput.setCustomValidity(``);
   }
