@@ -13,6 +13,56 @@
     }
   };
 
+  const onMainPinDown = (downEvt) => {
+
+    let startCoords = {
+      x: downEvt.clientX,
+      y: downEvt.clientY
+    };
+
+    const onMouseMove = (moveEvt) => {
+
+      const shift = {
+        x: startCoords.x - moveEvt.clientX,
+        y: startCoords.y - moveEvt.clientY
+      };
+
+      startCoords = {
+        x: moveEvt.clientX,
+        y: moveEvt.clientY
+      };
+
+      const pinCoords = window.util.getCoords(mainPin);
+
+      if (pinCoords.left > window.map.pinsContainer.offsetWidth - mainPin.offsetWidth / 2) {
+        mainPin.style.left = `${window.map.pinsContainer.offsetWidth - mainPin.offsetWidth}px`;
+        return;
+      } else if (pinCoords.left < mainPin.offsetWidth / 2) {
+        mainPin.style.left = `1px`;
+        return;
+      } else if (pinCoords.top > window.map.MAP_MAX_Y) {
+        mainPin.style.top = `${window.map.MAP_MAX_Y}px`;
+        return;
+      } else if (pinCoords.top < window.map.MAP_MIN_Y - window.map.PIN_HEIGHT) {
+        mainPin.style.top = `${window.map.MAP_MIN_Y - window.map.PIN_HEIGHT}px`;
+        return;
+      }
+
+      mainPin.style.left = `${mainPin.offsetLeft - shift.x}px`;
+      mainPin.style.top = `${mainPin.offsetTop - shift.y}px`;
+
+      setMainPinAddress();
+    };
+
+    const onMouseUp = () => {
+      document.removeEventListener(`mousemove`, onMouseMove);
+      document.removeEventListener(`mouseup`, onMouseUp);
+    };
+
+    document.addEventListener(`mousemove`, onMouseMove);
+    document.addEventListener(`mouseup`, onMouseUp);
+  };
+
   const onMainPinActivate = (evt) => {
     if (evt.button === 0 || evt.key === `Enter`) {
       window.data.renderPinsArr();
@@ -43,4 +93,5 @@
   disableElements(true, window.form.fieldsets);
   mainPin.addEventListener(`mousedown`, onMainPinActivate);
   mainPin.addEventListener(`keydown`, onMainPinActivate);
+  mainPin.addEventListener(`mousedown`, onMainPinDown);
 })();
