@@ -5,7 +5,7 @@
 
   const setMainPinAddress = () => {
     const mainPinDiameter = mainPin.offsetWidth;
-    const mainPinCoords = window.util.getCoords(mainPin);
+    const mainPinCoords = window.util.getChildElementCoords(mainPin, window.map.pinsContainer);
     if (window.map.map.classList.contains(`map--faded`)) {
       window.form.addressInput.value = `${Math.round(mainPinCoords.left + mainPinDiameter / 2)}, ${Math.round(mainPinCoords.top + mainPinDiameter / 2)}`;
     } else {
@@ -32,13 +32,13 @@
         y: moveEvt.clientY
       };
 
-      const pinCoords = window.util.getCoords(mainPin);
+      const pinCoords = window.util.getChildElementCoords(mainPin, window.map.pinsContainer);
 
       if (pinCoords.left > window.map.pinsContainer.offsetWidth - mainPin.offsetWidth / 2) {
-        mainPin.style.left = `${window.map.pinsContainer.offsetWidth - mainPin.offsetWidth}px`;
+        mainPin.style.left = `${window.map.pinsContainer.offsetWidth - mainPin.offsetWidth / 2}px`;
         return;
-      } else if (pinCoords.left < mainPin.offsetWidth / 2) {
-        mainPin.style.left = `1px`;
+      } else if (pinCoords.left < 0 - mainPin.offsetWidth / 2) {
+        mainPin.style.left = `${0 - mainPin.offsetWidth / 2}px`;
         return;
       } else if (pinCoords.top > window.map.MAP_MAX_Y) {
         mainPin.style.top = `${window.map.MAP_MAX_Y}px`;
