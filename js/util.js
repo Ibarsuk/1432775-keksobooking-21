@@ -50,9 +50,19 @@
     };
   };
 
+  const getChildElementCoords = (child, parent) => {
+    const childCoords = getCoords(child);
+    const parentCoords = getCoords(parent);
+    return {
+      left: childCoords.left - parentCoords.left,
+      top: childCoords.top - parentCoords.top
+    };
+  };
+
   window.util = {
     getRandomInt,
     getCoords,
+    getChildElementCoords,
     offersTypes,
     minPrices,
     possibleFeatures
