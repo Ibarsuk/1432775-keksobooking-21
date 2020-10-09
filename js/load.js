@@ -2,10 +2,11 @@
 
 (() => {
 
-  const POST_URL = ``;
+  const POST_URL = `https://21.javascript.pages.academy/keksobooking`;
   const GET_URL = `https://21.javascript.pages.academy/keksobooking/data`;
   const TIMEOUT = 10000;
   const SUCCESS_STATUS = 200;
+  let loadType = `GET`;
 
   const load = (url, requestType, onSuccessCallback, onErrorCallback, data = ``) => {
     const xhr = new XMLHttpRequest();
@@ -27,17 +28,20 @@
     });
 
     xhr.addEventListener(`timeout`, () => {
-      onErrorCallback(`Сервер не ответил за ${xhr.timeout} мс. Объявления не отрисовались`);
+      onErrorCallback(`Сервер не ответил за ${xhr.timeout} мс.`);
     });
 
     xhr.addEventListener(`error`, () => {
       onErrorCallback(`Произошла ошибка соединения`);
     });
+
+    loadType = data ? `POST` : `GET`;
   };
 
   window.load = {
     load,
     POST_URL,
     GET_URL,
+    loadType
   };
 })();

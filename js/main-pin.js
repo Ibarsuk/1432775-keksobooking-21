@@ -2,6 +2,8 @@
 
 (() => {
   const mainPin = window.map.pinsContainer.querySelector(`.map__pin--main`);
+  const MAIN_PIN_LEFT = mainPin.style.left;
+  const MAIN_PIN_TOP = mainPin.style.top;
 
   const setMainPinAddress = () => {
     const mainPinDiameter = mainPin.offsetWidth;
@@ -76,6 +78,8 @@
       window.form.typeInput.addEventListener(`change`, window.form.onNightPriceChange);
       window.form.roomsInput.addEventListener(`change`, window.form.checkGuestsNumberValidity);
       window.form.guestsInput.addEventListener(`change`, window.form.checkGuestsNumberValidity);
+      window.form.resetButton.addEventListener(`click`, resetForm);
+      window.form.form.addEventListener(`submit`, onFormSubmit);
       mainPin.removeEventListener(`mousedown`, onMainPinActivate);
       mainPin.removeEventListener(`keydown`, onMainPinActivate);
     }
@@ -88,9 +92,48 @@
     window.form.form.querySelector(`.ad-form-header`).disabled = logicalType;
   };
 
+  const onSuccessPost = () => {
+    const newSeccessPopup = window.form.successPopup.cloneNode(true);
+    document.addEventListener(`keydown`, window.form.onSuccessPopupClick);
+    document.addEventListener(`mouseup`, window.form.onSuccessPopupClick);
+    window.form.form.appendChild(newSeccessPopup);
+    window.form.form.reset();
+    mainPin.style.left = MAIN_PIN_LEFT;
+    mainPin.style.top = MAIN_PIN_TOP;
+    setMainPinAddress();
+    window.map.deletePins();
+    window.map.map.classList.add(`map--faded`);
+    disableElements(true, window.form.fieldsets);
+    window.form.form.classList.add(`ad-form--disabled`);
+    window.form.titleInput.removeEventListener(`input`, window.form.checkTitleValidity);
+    window.form.nightPriceInput.removeEventListener(`input`, window.form.checkNightPriceValidity);
+    window.form.typeInput.removeEventListener(`change`, window.form.onNightPriceChange);
+    window.form.roomsInput.removeEventListener(`change`, window.form.checkGuestsNumberValidity);
+    window.form.guestsInput.removeEventListener(`change`, window.form.checkGuestsNumberValidity);
+    window.form.form.removeEventListener(`submit`, onFormSubmit);
+    window.form.resetButton.removeEventListener(`click`, resetForm);
+    mainPin.addEventListener(`mousedown`, onMainPinActivate);
+    mainPin.addEventListener(`keydown`, onMainPinActivate);
+  };
+
+  const resetForm = (evt) => {
+    evt.preventDefault();
+    window.form.form.reset();
+    setMainPinAddress();
+  };
+
+  const onFormSubmit = (evt) => {
+    window.load.load(window.load.POST_URL, `POST`, onSuccessPost, window.map.onErrorGet, new FormData(window.form.form));
+    evt.preventDefault();
+  };
+
   setMainPinAddress();
   disableElements(true, window.form.fieldsets);
   mainPin.addEventListener(`mousedown`, onMainPinActivate);
   mainPin.addEventListener(`keydown`, onMainPinActivate);
   mainPin.addEventListener(`mousedown`, onMainPinDown);
+
+  window.mainPin = {
+    onSuccessPost,
+  };
 })();

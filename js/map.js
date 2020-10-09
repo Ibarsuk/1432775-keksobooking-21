@@ -28,6 +28,13 @@
     pinsContainer.appendChild(fragment);
   };
 
+  const deletePins = () => {
+    const pins = pinsContainer.querySelectorAll(`.map__pin:not(.map__pin--main)`);
+    for (let pin of pins) {
+      pin.remove();
+    }
+  };
+
   const deleteFeatures = (featuresArr, adFeatures, newCard) => {
     for (let i = 0; i < featuresArr.length; i++) {
       if (!adFeatures.includes(featuresArr[i], 0)) {
@@ -75,14 +82,21 @@
     const tryButton = newError.querySelector(`.error__button`);
     const closeButton = document.createElement(`button`);
 
-    const closePopup = () => {
-      pinsContainer.querySelector(`.error`).remove();
-      closeButton.removeEventListener(`click`, closePopup);
+    const closePopup = (evt) => {
+      if (evt.button === 0 || evt.key === `Escape`) {
+        pinsContainer.querySelector(`.error`).remove();
+        closeButton.removeEventListener(`click`, closePopup);
+        document.removeEventListener(`keyup`, closePopup);
+      }
     };
 
-    const tryAgain = () => {
-      closePopup();
-      window.load.load(window.load.GET_URL, `GET`, window.map.renderPins, window.map.onErrorGet);
+    const tryAgain = (evt) => {
+      closePopup(evt);
+      if (window.load.loadType === `GET`) {
+        window.load.load(window.load.GET_URL, `GET`, window.map.renderPins, window.map.onErrorGet);
+      } else {
+        window.load.load(window.load.POST_URL, `POST`, window.mainPin.onSuccessPost, window.map.onErrorGet, new FormData(window.form.form));
+      }
       tryButton.removeEventListener(`click`, tryAgain);
     };
 
@@ -93,6 +107,7 @@
     closeButton.classList.add(`error__button`);
     closeButton.textContent = `Закрыть`;
     closeButton.addEventListener(`click`, closePopup);
+    document.addEventListener(`keyup`, closePopup);
     newError.appendChild(closeButton);
 
     pinsContainer.appendChild(newError);
@@ -104,6 +119,7 @@
     renderPins,
     renderCardPopup,
     onErrorGet,
+    deletePins,
     map,
     pinsContainer,
     MAP_MIN_Y,

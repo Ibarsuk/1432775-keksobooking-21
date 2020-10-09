@@ -9,6 +9,8 @@
   const roomsInput = form.querySelector(`#room_number`);
   const guestsInput = form.querySelector(`#capacity`);
   const fieldsets = form.querySelectorAll(`.ad-form__element`);
+  const successPopup = document.querySelector(`#success`).content.querySelector(`.success`);
+  const resetButton = form.querySelector(`.ad-form__reset`);
 
   const checkTitleValidity = () => {
     const minLength = titleInput.minLength;
@@ -83,12 +85,21 @@
     guestsInput.reportValidity();
   };
 
+  const onSuccessPopupClick = (evt) => {
+    if (evt.button === 0 || evt.key === `Escape`) {
+      form.querySelector(`.success`).remove();
+      document.removeEventListener(`keydown`, onSuccessPopupClick);
+      document.removeEventListener(`mouseup`, onSuccessPopupClick);
+    }
+  };
+
   window.form = {
     checkTitleValidity,
     checkNightPriceValidity,
     onNightPriceChange,
     checkGuestsNumberValidity,
     disableGuestsOptions,
+    onSuccessPopupClick,
     addressInput,
     fieldsets,
     form,
@@ -96,6 +107,8 @@
     nightPriceInput,
     typeInput,
     roomsInput,
-    guestsInput
+    guestsInput,
+    successPopup,
+    resetButton
   };
 })();
