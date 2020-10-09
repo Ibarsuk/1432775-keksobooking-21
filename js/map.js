@@ -4,6 +4,7 @@
   const templatePin = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
   const pinsContainer = document.querySelector(`.map__pins`);
   const templateCardPopup = document.querySelector(`#card`).content.querySelector(`.map__card`);
+  const templateErrorPopup = document.querySelector(`#error`).content.querySelector(`.error`);
   const map = document.querySelector(`.map`);
   const PIN_HEIGHT = 70;
   const PIN_WIDTH = 50;
@@ -69,11 +70,40 @@
     return newCardPopup;
   };
 
+  const onErrorGet = (errorMessage) => {
+    const newError = templateErrorPopup.cloneNode(true);
+    const tryButton = newError.querySelector(`.error__button`);
+    const closeButton = document.createElement(`button`);
+
+    const closePopup = () => {
+      pinsContainer.querySelector(`.error`).remove();
+      closeButton.removeEventListener(`click`, closePopup);
+    };
+
+    const tryAgain = () => {
+      closePopup();
+      window.load.load(window.load.GET_URL, `GET`, window.map.renderPins, window.map.onErrorGet);
+      tryButton.removeEventListener(`click`, tryAgain);
+    };
+
+    newError.querySelector(`.error__message`).textContent = errorMessage;
+
+    tryButton.addEventListener(`click`, tryAgain);
+
+    closeButton.classList.add(`error__button`);
+    closeButton.textContent = `Закрыть`;
+    closeButton.addEventListener(`click`, closePopup);
+    newError.appendChild(closeButton);
+
+    pinsContainer.appendChild(newError);
+  };
+
   // window.map.map.appendChild(window.map.renderCardPopup(window.data.pins[0]));
 
   window.map = {
     renderPins,
     renderCardPopup,
+    onErrorGet,
     map,
     pinsContainer,
     MAP_MIN_Y,
