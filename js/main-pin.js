@@ -65,8 +65,7 @@
 
   const onMainPinActivate = (evt) => {
     if (evt.button === 0 || evt.key === `Enter`) {
-      window.data.renderPinsArr();
-      window.map.renderPins(window.data.pins);
+      window.load.load(window.load.GET_URL, `GET`, window.map.renderPins, window.map.onErrorGet);
       window.map.map.classList.remove(`map--faded`);
       setMainPinAddress();
       window.form.disableGuestsOptions();
