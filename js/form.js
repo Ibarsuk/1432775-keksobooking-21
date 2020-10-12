@@ -88,6 +88,7 @@
   const onSuccessPopupClick = (evt) => {
     if (evt.button === 0 || evt.key === `Escape`) {
       form.querySelector(`.success`).remove();
+      document.body.style.overflow = `visible`;
       document.removeEventListener(`keydown`, onSuccessPopupClick);
       document.removeEventListener(`mouseup`, onSuccessPopupClick);
     }

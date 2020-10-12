@@ -17,6 +17,9 @@
 
   const onMainPinDown = (downEvt) => {
 
+    let isMouseOutside = false;
+    let outsideDirection = ``;
+
     let startCoords = {
       x: downEvt.clientX,
       y: downEvt.clientY
@@ -34,24 +37,57 @@
         y: moveEvt.clientY
       };
 
-      const pinCoords = window.util.getChildElementCoords(mainPin, window.map.pinsContainer);
+      const mouseCoords = {
+        x: moveEvt.pageX - window.util.getCoords(window.map.pinsContainer).left,
+        y: moveEvt.pageY - window.util.getCoords(window.map.pinsContainer).top
+      };
 
-      if (pinCoords.left > window.map.pinsContainer.offsetWidth - mainPin.offsetWidth / 2) {
-        mainPin.style.left = `${window.map.pinsContainer.offsetWidth - mainPin.offsetWidth / 2}px`;
+      const nextStepCoords = {
+        x: mainPin.offsetLeft - shift.x,
+        y: mainPin.offsetTop - shift.y
+      };
+
+      if (mouseCoords.y < window.map.MAP_MIN_Y - mainPin.offsetWidth || mouseCoords.y > window.map.MAP_MAX_Y + mainPin.offsetWidth || mouseCoords.x < 0 || mouseCoords.x > window.map.pinsContainer.offsetWidth) {
+        isMouseOutside = true;
+      }
+
+      if (mouseCoords.y < window.map.MAP_MIN_Y - mainPin.offsetWidth) {
+        outsideDirection = `top`;
         return;
-      } else if (pinCoords.left < 0 - mainPin.offsetWidth / 2) {
-        mainPin.style.left = `${0 - mainPin.offsetWidth / 2}px`;
+      } else if (mouseCoords.y > window.map.MAP_MAX_Y + mainPin.offsetWidth) {
+        outsideDirection = `bottom`;
         return;
-      } else if (pinCoords.top > window.map.MAP_MAX_Y) {
-        mainPin.style.top = `${window.map.MAP_MAX_Y}px`;
-        return;
-      } else if (pinCoords.top < window.map.MAP_MIN_Y - window.map.PIN_HEIGHT) {
-        mainPin.style.top = `${window.map.MAP_MIN_Y - window.map.PIN_HEIGHT}px`;
+      } else if (mouseCoords.x < 0 || mouseCoords.x > window.map.pinsContainer.offsetWidth) {
+        outsideDirection = `left`;
         return;
       }
 
-      mainPin.style.left = `${mainPin.offsetLeft - shift.x}px`;
-      mainPin.style.top = `${mainPin.offsetTop - shift.y}px`;
+      if (isMouseOutside && mouseCoords.x > 0 && mouseCoords.x < window.map.pinsContainer.offsetWidth && outsideDirection === `top`) {
+        mainPin.style.left = `${mouseCoords.x - mainPin.offsetWidth / 2}px`;
+        mainPin.style.top = `${mouseCoords.y}px`;
+        isMouseOutside = false;
+        return;
+      } else if (isMouseOutside && mouseCoords.x > 0 && mouseCoords.x < window.map.pinsContainer.offsetWidth && outsideDirection === `bottom`) {
+        mainPin.style.left = `${mouseCoords.x - mainPin.offsetWidth / 2}px`;
+        mainPin.style.top = `${mouseCoords.y - mainPin.offsetHeight}px`;
+        isMouseOutside = false;
+        return;
+      } else if (isMouseOutside && mouseCoords.y > window.map.MAP_MIN_Y - mainPin.offsetWidth && mouseCoords.y < window.map.MAP_MAX_Y + mainPin.offsetWidth && outsideDirection === `left`) {
+        mainPin.style.left = `${mouseCoords.x - mainPin.offsetWidth / 2}px`;
+        mainPin.style.top = `${mouseCoords.y - mainPin.offsetHeight / 2}px`;
+        isMouseOutside = false;
+        return;
+      }
+
+      if (nextStepCoords.x > window.map.pinsContainer.offsetWidth - mainPin.offsetWidth / 2 ||
+        nextStepCoords.x < 0 - mainPin.offsetWidth / 2 ||
+        nextStepCoords.y > window.map.MAP_MAX_Y ||
+        nextStepCoords.y < window.map.MAP_MIN_Y - window.map.PIN_HEIGHT) {
+        return;
+      } else {
+        mainPin.style.left = `${nextStepCoords.x}px`;
+        mainPin.style.top = `${nextStepCoords.y}px`;
+      }
 
       setMainPinAddress();
     };
@@ -94,6 +130,7 @@
 
   const onSuccessPost = () => {
     const newSeccessPopup = window.form.successPopup.cloneNode(true);
+    document.body.style.overflow = `hidden`;
     document.addEventListener(`keydown`, window.form.onSuccessPopupClick);
     document.addEventListener(`mouseup`, window.form.onSuccessPopupClick);
     window.form.form.appendChild(newSeccessPopup);
