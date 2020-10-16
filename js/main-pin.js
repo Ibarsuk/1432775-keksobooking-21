@@ -103,7 +103,7 @@
 
   const onMainPinActivate = (evt) => {
     if (evt.button === 0 || evt.key === `Enter`) {
-      window.load.load(window.load.GET_URL, `GET`, window.map.renderPins, window.map.onErrorGet);
+      window.map.renderPins(window.load.response);
       window.map.map.classList.remove(`map--faded`);
       setMainPinAddress();
       window.form.disableGuestsOptions();
@@ -116,6 +116,7 @@
       window.form.guestsInput.addEventListener(`change`, window.form.checkGuestsNumberValidity);
       window.form.resetButton.addEventListener(`click`, resetForm);
       window.form.form.addEventListener(`submit`, onFormSubmit);
+      window.map.typeFilter.addEventListener(`change`, window.pinsFilter.onTypeFilterChange);
       mainPin.removeEventListener(`mousedown`, onMainPinActivate);
       mainPin.removeEventListener(`keydown`, onMainPinActivate);
     }
@@ -149,6 +150,7 @@
     window.form.guestsInput.removeEventListener(`change`, window.form.checkGuestsNumberValidity);
     window.form.form.removeEventListener(`submit`, onFormSubmit);
     window.form.resetButton.removeEventListener(`click`, resetForm);
+    window.map.typeFilter.removeEventListener(`change`, window.pinsFilter.onTypeFilterChange);
     mainPin.addEventListener(`mousedown`, onMainPinActivate);
     mainPin.addEventListener(`keydown`, onMainPinActivate);
   };

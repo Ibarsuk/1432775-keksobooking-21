@@ -1,15 +1,18 @@
 'use strict';
 
 (() => {
+  const PIN_HEIGHT = 70;
+  const PIN_WIDTH = 50;
+  const MAP_MIN_Y = 130;
+  const MAP_MAX_Y = 630;
+  const PINS_ON_MAP = 5;
   const templatePin = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
   const pinsContainer = document.querySelector(`.map__pins`);
   const templateCardPopup = document.querySelector(`#card`).content.querySelector(`.map__card`);
   const templateErrorPopup = document.querySelector(`#error`).content.querySelector(`.error`);
   const map = document.querySelector(`.map`);
-  const PIN_HEIGHT = 70;
-  const PIN_WIDTH = 50;
-  const MAP_MIN_Y = 130;
-  const MAP_MAX_Y = 630;
+  const filtersContainer = map.querySelector(`.map__filters-container`);
+  const typeFilter = filtersContainer.querySelector(`#housing-type`);
 
   const renderPin = (index, pinsArr) => {
     const newPin = templatePin.cloneNode(true);
@@ -22,8 +25,12 @@
 
   const renderPins = (pinsArr) => {
     const fragment = document.createDocumentFragment();
-    for (let i = 0; i < pinsArr.length; i++) {
-      fragment.appendChild(renderPin(i, pinsArr));
+    for (let i = 0; i < PINS_ON_MAP; i++) {
+      try {
+        fragment.appendChild(renderPin(i, pinsArr));
+      } catch (err) {
+        break;
+      }
     }
     pinsContainer.appendChild(fragment);
   };
@@ -113,18 +120,24 @@
     pinsContainer.appendChild(newError);
   };
 
+  const onSuccessGet = (response) => {
+    window.load.response = response;
+  };
+
+  window.load.load(window.load.GET_URL, `GET`, onSuccessGet, onErrorGet);
+
   // window.map.map.appendChild(window.map.renderCardPopup(window.data.pins[0]));
 
   window.map = {
     renderPins,
     renderCardPopup,
-    onErrorGet,
     deletePins,
     map,
     pinsContainer,
     MAP_MIN_Y,
     MAP_MAX_Y,
     PIN_HEIGHT,
-    PIN_WIDTH
+    PIN_WIDTH,
+    typeFilter
   };
 })();

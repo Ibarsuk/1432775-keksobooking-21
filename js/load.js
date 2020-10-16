@@ -7,6 +7,7 @@
   const TIMEOUT = 10000;
   const SUCCESS_STATUS = 200;
   let loadType = `GET`;
+  let response = [];
 
   const load = (url, requestType, onSuccessCallback, onErrorCallback, data = ``) => {
     const xhr = new XMLHttpRequest();
@@ -42,6 +43,7 @@
     load,
     POST_URL,
     GET_URL,
-    loadType
+    loadType,
+    response
   };
 })();
