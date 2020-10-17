@@ -11,8 +11,12 @@
   const templateCardPopup = document.querySelector(`#card`).content.querySelector(`.map__card`);
   const templateErrorPopup = document.querySelector(`#error`).content.querySelector(`.error`);
   const map = document.querySelector(`.map`);
-  const filtersContainer = map.querySelector(`.map__filters-container`);
+  const filtersContainer = map.querySelector(`.map__filters`);
   const typeFilter = filtersContainer.querySelector(`#housing-type`);
+  const priceFilter = filtersContainer.querySelector(`#housing-price`);
+  const roomsFilter = filtersContainer.querySelector(`#housing-rooms`);
+  const guestsFilter = filtersContainer.querySelector(`#housing-guests`);
+  const checkboxFilterList = filtersContainer.querySelectorAll(`.map__checkbox`);
 
   const renderPin = (index, pinsArr) => {
     const newPin = templatePin.cloneNode(true);
@@ -138,6 +142,11 @@
     MAP_MAX_Y,
     PIN_HEIGHT,
     PIN_WIDTH,
-    typeFilter
+    typeFilter,
+    priceFilter,
+    filtersContainer,
+    roomsFilter,
+    guestsFilter,
+    checkboxFilterList
   };
 })();

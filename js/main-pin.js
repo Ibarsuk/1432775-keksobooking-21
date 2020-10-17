@@ -116,7 +116,7 @@
       window.form.guestsInput.addEventListener(`change`, window.form.checkGuestsNumberValidity);
       window.form.resetButton.addEventListener(`click`, resetForm);
       window.form.form.addEventListener(`submit`, onFormSubmit);
-      window.map.typeFilter.addEventListener(`change`, window.pinsFilter.onTypeFilterChange);
+      window.map.filtersContainer.addEventListener(`change`, window.debounce.bind(null, window.pinsFilter.onFilterChange));
       mainPin.removeEventListener(`mousedown`, onMainPinActivate);
       mainPin.removeEventListener(`keydown`, onMainPinActivate);
     }
@@ -150,7 +150,7 @@
     window.form.guestsInput.removeEventListener(`change`, window.form.checkGuestsNumberValidity);
     window.form.form.removeEventListener(`submit`, onFormSubmit);
     window.form.resetButton.removeEventListener(`click`, resetForm);
-    window.map.typeFilter.removeEventListener(`change`, window.pinsFilter.onTypeFilterChange);
+    window.map.filtersContainer.removeEventListener(`change`, window.pinsFilter.onFilterChange);
     mainPin.addEventListener(`mousedown`, onMainPinActivate);
     mainPin.addEventListener(`keydown`, onMainPinActivate);
   };
