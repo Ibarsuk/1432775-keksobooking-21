@@ -128,9 +128,37 @@
     window.load.response = response;
   };
 
-  window.load.load(window.load.GET_URL, `GET`, onSuccessGet, onErrorGet);
+  const closeAdPopup = (popup, evt) => {
+    if (evt.button === 0 || evt.key === `Escape`) {
+      popup.removeEventListener(`click`, closeAdPopup);
+      document.removeEventListener(`keyup`, closeAdPopup);
+      popup.remove();
+    }
+  };
 
-  // window.map.map.appendChild(window.map.renderCardPopup(window.data.pins[0]));
+  const renderAdPopup = (evt) => {
+    if ((evt.target.classList.contains(`map__pin`) || evt.target.closest(`.map__pin:not(.map__pin--main)`)) && !evt.target.classList.contains(`map__pin--main`)) {
+      let currentPin;
+      if (evt.target.classList.contains(`map__pin`)) {
+        currentPin = evt.target;
+      } else {
+        currentPin = evt.target.closest(`.map__pin:not(.map__pin--main)`);
+      }
+      const ad = window.load.response.find((currentAd) => {
+        return (`${currentAd.location.x - PIN_WIDTH / 2}px` === currentPin.style.left && `${currentAd.location.y - PIN_HEIGHT}px` === currentPin.style.top);
+      });
+      let adPopup;
+      if (map.querySelector(`.map__card`)) {
+        map.querySelector(`.map__card`).remove();
+      }
+      map.appendChild(renderCardPopup(ad));
+      adPopup = map.querySelector(`.map__card`);
+      adPopup.querySelector(`.popup__close`).addEventListener(`click`, closeAdPopup.bind(null, adPopup));
+      document.addEventListener(`keyup`, closeAdPopup.bind(null, adPopup));
+    }
+  };
+
+  window.load.load(window.load.GET_URL, `GET`, onSuccessGet, onErrorGet);
 
   window.map = {
     renderPins,
@@ -147,6 +175,7 @@
     filtersContainer,
     roomsFilter,
     guestsFilter,
-    checkboxFilterList
+    checkboxFilterList,
+    renderAdPopup
   };
 })();

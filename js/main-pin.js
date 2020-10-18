@@ -114,9 +114,12 @@
       window.form.typeInput.addEventListener(`change`, window.form.onNightPriceChange);
       window.form.roomsInput.addEventListener(`change`, window.form.checkGuestsNumberValidity);
       window.form.guestsInput.addEventListener(`change`, window.form.checkGuestsNumberValidity);
+      window.form.checkInAndOutFieldset.addEventListener(`change`, window.form.checkCheckoutValidity);
+      window.form.userPictureInput.addEventListener(`change`, window.form.onPictureLoad);
       window.form.resetButton.addEventListener(`click`, resetForm);
       window.form.form.addEventListener(`submit`, onFormSubmit);
       window.map.filtersContainer.addEventListener(`change`, window.debounce.bind(null, window.pinsFilter.onFilterChange));
+      window.map.pinsContainer.addEventListener(`click`, window.map.renderAdPopup);
       mainPin.removeEventListener(`mousedown`, onMainPinActivate);
       mainPin.removeEventListener(`keydown`, onMainPinActivate);
     }
@@ -148,9 +151,12 @@
     window.form.typeInput.removeEventListener(`change`, window.form.onNightPriceChange);
     window.form.roomsInput.removeEventListener(`change`, window.form.checkGuestsNumberValidity);
     window.form.guestsInput.removeEventListener(`change`, window.form.checkGuestsNumberValidity);
+    window.form.checkInAndOutFieldset.removeEventListener(`change`, window.form.checkCheckoutValidity);
+    window.form.userPictureInput.removeEventListener(`change`, window.form.onPictureLoad);
     window.form.form.removeEventListener(`submit`, onFormSubmit);
     window.form.resetButton.removeEventListener(`click`, resetForm);
     window.map.filtersContainer.removeEventListener(`change`, window.pinsFilter.onFilterChange);
+    window.map.pinsContainer.removeEventListener(`click`, window.map.renderAdPopup);
     mainPin.addEventListener(`mousedown`, onMainPinActivate);
     mainPin.addEventListener(`keydown`, onMainPinActivate);
   };
