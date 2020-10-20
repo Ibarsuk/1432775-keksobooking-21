@@ -1,15 +1,22 @@
 'use strict';
 
 (() => {
+  const PIN_HEIGHT = 70;
+  const PIN_WIDTH = 50;
+  const MAP_MIN_Y = 130;
+  const MAP_MAX_Y = 630;
+  const PINS_ON_MAP = 5;
   const templatePin = document.querySelector(`#pin`).content.querySelector(`.map__pin`);
   const pinsContainer = document.querySelector(`.map__pins`);
   const templateCardPopup = document.querySelector(`#card`).content.querySelector(`.map__card`);
   const templateErrorPopup = document.querySelector(`#error`).content.querySelector(`.error`);
   const map = document.querySelector(`.map`);
-  const PIN_HEIGHT = 70;
-  const PIN_WIDTH = 50;
-  const MAP_MIN_Y = 130;
-  const MAP_MAX_Y = 630;
+  const filtersContainer = map.querySelector(`.map__filters`);
+  const typeFilter = filtersContainer.querySelector(`#housing-type`);
+  const priceFilter = filtersContainer.querySelector(`#housing-price`);
+  const roomsFilter = filtersContainer.querySelector(`#housing-rooms`);
+  const guestsFilter = filtersContainer.querySelector(`#housing-guests`);
+  const checkboxFilterList = filtersContainer.querySelectorAll(`.map__checkbox`);
 
   const renderPin = (index, pinsArr) => {
     const newPin = templatePin.cloneNode(true);
@@ -22,8 +29,12 @@
 
   const renderPins = (pinsArr) => {
     const fragment = document.createDocumentFragment();
-    for (let i = 0; i < pinsArr.length; i++) {
-      fragment.appendChild(renderPin(i, pinsArr));
+    for (let i = 0; i < PINS_ON_MAP; i++) {
+      try {
+        fragment.appendChild(renderPin(i, pinsArr));
+      } catch (err) {
+        break;
+      }
     }
     pinsContainer.appendChild(fragment);
   };
@@ -113,18 +124,63 @@
     pinsContainer.appendChild(newError);
   };
 
-  // window.map.map.appendChild(window.map.renderCardPopup(window.data.pins[0]));
+  const onSuccessGet = (response) => {
+    window.load.response = response;
+  };
+
+  const closeAdPopup = (popup, evt) => {
+    if (evt.button === 0 || evt.key === `Escape`) {
+      popup.removeEventListener(`click`, closeAdPopup);
+      document.removeEventListener(`keyup`, closeAdPopup);
+      popup.remove();
+    }
+  };
+
+  const deleteAdpopup = () => {
+    if (map.querySelector(`.map__card`)) {
+      map.querySelector(`.map__card`).remove();
+    }
+  };
+
+  const renderAdPopup = (evt) => {
+    if ((evt.target.classList.contains(`map__pin`) || evt.target.closest(`.map__pin:not(.map__pin--main)`)) && !evt.target.classList.contains(`map__pin--main`)) {
+      let currentPin;
+      if (evt.target.classList.contains(`map__pin`)) {
+        currentPin = evt.target;
+      } else {
+        currentPin = evt.target.closest(`.map__pin:not(.map__pin--main)`);
+      }
+      const ad = window.load.response.find((currentAd) => {
+        return (`${currentAd.location.x - PIN_WIDTH / 2}px` === currentPin.style.left && `${currentAd.location.y - PIN_HEIGHT}px` === currentPin.style.top);
+      });
+      let adPopup;
+      deleteAdpopup();
+      map.appendChild(renderCardPopup(ad));
+      adPopup = map.querySelector(`.map__card`);
+      adPopup.querySelector(`.popup__close`).addEventListener(`click`, closeAdPopup.bind(null, adPopup));
+      document.addEventListener(`keyup`, closeAdPopup.bind(null, adPopup));
+    }
+  };
+
+  window.load.load(window.load.GET_URL, `GET`, onSuccessGet, onErrorGet);
 
   window.map = {
     renderPins,
     renderCardPopup,
-    onErrorGet,
     deletePins,
     map,
     pinsContainer,
     MAP_MIN_Y,
     MAP_MAX_Y,
     PIN_HEIGHT,
-    PIN_WIDTH
+    PIN_WIDTH,
+    typeFilter,
+    priceFilter,
+    filtersContainer,
+    roomsFilter,
+    guestsFilter,
+    checkboxFilterList,
+    renderAdPopup,
+    deleteAdpopup
   };
 })();

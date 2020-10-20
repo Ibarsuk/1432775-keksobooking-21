@@ -103,7 +103,7 @@
 
   const onMainPinActivate = (evt) => {
     if (evt.button === 0 || evt.key === `Enter`) {
-      window.load.load(window.load.GET_URL, `GET`, window.map.renderPins, window.map.onErrorGet);
+      window.map.renderPins(window.load.response);
       window.map.map.classList.remove(`map--faded`);
       setMainPinAddress();
       window.form.disableGuestsOptions();
@@ -114,8 +114,12 @@
       window.form.typeInput.addEventListener(`change`, window.form.onNightPriceChange);
       window.form.roomsInput.addEventListener(`change`, window.form.checkGuestsNumberValidity);
       window.form.guestsInput.addEventListener(`change`, window.form.checkGuestsNumberValidity);
+      window.form.checkInAndOutFieldset.addEventListener(`change`, window.form.checkCheckoutValidity);
+      window.form.userPictureInput.addEventListener(`change`, window.form.onPictureLoad);
       window.form.resetButton.addEventListener(`click`, resetForm);
       window.form.form.addEventListener(`submit`, onFormSubmit);
+      window.map.filtersContainer.addEventListener(`change`, window.debounce(window.pinsFilter.onFilterChange));
+      window.map.pinsContainer.addEventListener(`click`, window.map.renderAdPopup);
       mainPin.removeEventListener(`mousedown`, onMainPinActivate);
       mainPin.removeEventListener(`keydown`, onMainPinActivate);
     }
@@ -135,10 +139,12 @@
     document.addEventListener(`mouseup`, window.form.onSuccessPopupClick);
     window.form.form.appendChild(newSeccessPopup);
     window.form.form.reset();
+    window.form.userLoadedPicture.src = `img/muffin-grey.svg`;
     mainPin.style.left = MAIN_PIN_LEFT;
     mainPin.style.top = MAIN_PIN_TOP;
     setMainPinAddress();
     window.map.deletePins();
+    window.map.deleteAdpopup();
     window.map.map.classList.add(`map--faded`);
     disableElements(true, window.form.fieldsets);
     window.form.form.classList.add(`ad-form--disabled`);
@@ -147,8 +153,12 @@
     window.form.typeInput.removeEventListener(`change`, window.form.onNightPriceChange);
     window.form.roomsInput.removeEventListener(`change`, window.form.checkGuestsNumberValidity);
     window.form.guestsInput.removeEventListener(`change`, window.form.checkGuestsNumberValidity);
+    window.form.checkInAndOutFieldset.removeEventListener(`change`, window.form.checkCheckoutValidity);
+    window.form.userPictureInput.removeEventListener(`change`, window.form.onPictureLoad);
     window.form.form.removeEventListener(`submit`, onFormSubmit);
     window.form.resetButton.removeEventListener(`click`, resetForm);
+    window.map.filtersContainer.removeEventListener(`change`, window.pinsFilter.onFilterChange);
+    window.map.pinsContainer.removeEventListener(`click`, window.map.renderAdPopup);
     mainPin.addEventListener(`mousedown`, onMainPinActivate);
     mainPin.addEventListener(`keydown`, onMainPinActivate);
   };
