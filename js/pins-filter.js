@@ -7,24 +7,21 @@
 
     const onTypeFilterChange = () => {
       filteredAds = filteredAds.filter((ad) => {
-        if (window.map.typeFilter.value !== `any`) {
-          return window.map.typeFilter.value === ad.offer.type;
-        } else {
-          return true;
-        }
+        return (window.map.typeFilter.value !== `any`) ? window.map.typeFilter.value === ad.offer.type : true;
       });
     };
 
     const onPriceFilterChange = () => {
       filteredAds = filteredAds.filter((ad) => {
-        if (window.map.priceFilter.value === `middle`) {
-          return (ad.offer.price >= 10000 && ad.offer.price <= 50000);
-        } else if (window.map.priceFilter.value === `low`) {
-          return ad.offer.price < 10000;
-        } else if (window.map.priceFilter.value === `high`) {
-          return ad.offer.price > 50000;
-        } else {
-          return true;
+        switch (window.map.priceFilter.value) {
+          case `middle`:
+            return (ad.offer.price >= 10000 && ad.offer.price <= 50000);
+          case `low`:
+            return ad.offer.price < 10000;
+          case `high`:
+            return ad.offer.price > 50000;
+          default:
+            return true;
         }
       });
     };

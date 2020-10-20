@@ -136,6 +136,12 @@
     }
   };
 
+  const deleteAdpopup = () => {
+    if (map.querySelector(`.map__card`)) {
+      map.querySelector(`.map__card`).remove();
+    }
+  };
+
   const renderAdPopup = (evt) => {
     if ((evt.target.classList.contains(`map__pin`) || evt.target.closest(`.map__pin:not(.map__pin--main)`)) && !evt.target.classList.contains(`map__pin--main`)) {
       let currentPin;
@@ -148,9 +154,7 @@
         return (`${currentAd.location.x - PIN_WIDTH / 2}px` === currentPin.style.left && `${currentAd.location.y - PIN_HEIGHT}px` === currentPin.style.top);
       });
       let adPopup;
-      if (map.querySelector(`.map__card`)) {
-        map.querySelector(`.map__card`).remove();
-      }
+      deleteAdpopup();
       map.appendChild(renderCardPopup(ad));
       adPopup = map.querySelector(`.map__card`);
       adPopup.querySelector(`.popup__close`).addEventListener(`click`, closeAdPopup.bind(null, adPopup));
@@ -176,6 +180,7 @@
     roomsFilter,
     guestsFilter,
     checkboxFilterList,
-    renderAdPopup
+    renderAdPopup,
+    deleteAdpopup
   };
 })();

@@ -141,6 +141,7 @@
     checkInAndOutFieldset,
     successPopup,
     resetButton,
-    userPictureInput
+    userPictureInput,
+    userLoadedPicture
   };
 })();
