@@ -11,11 +11,13 @@ const guestsInput = form.querySelector(`#capacity`);
 const checkoutInput = form.querySelector(`#timeout`);
 const checkinInput = form.querySelector(`#timein`);
 const userPictureInput = form.querySelector(`#avatar`);
+const housePictureInput = form.querySelector(`#images`);
 const fieldsets = form.querySelectorAll(`.ad-form__element`);
 const checkInAndOutFieldset = document.querySelector(`.ad-form__element--time`);
 const successPopup = document.querySelector(`#success`).content.querySelector(`.success`);
 const resetButton = form.querySelector(`.ad-form__reset`);
-const userLoadedPicture = form.querySelector(`.ad-form-header__preview img`);
+const userAvatarPicture = form.querySelector(`.ad-form-header__preview img`);
+const userHousePicture = form.querySelector(`.ad-form-header__preview--house-picture img`);
 
 const checkTitleValidity = () => {
   const minLength = titleInput.minLength;
@@ -99,15 +101,30 @@ const checkCheckoutValidity = () => {
   checkoutInput.reportValidity();
 };
 
-const onPictureLoad = (evt) => {
-  const selectedFile = evt.target.files[0];
-  const reader = new FileReader();
+const onPictureLoad = (img) => {
+  const FILE_TYPES = [`gif`, `jpg`, `jpeg`, `png`];
+  return function (evt) {
+    const selectedFile = evt.target.files[0];
 
-  reader.onload = (event) => {
-    userLoadedPicture.src = event.target.result;
+    const isRightType = FILE_TYPES.some(function (item) {
+      return selectedFile.type.toLowerCase().endsWith(item);
+    });
+
+    if (isRightType) {
+      const reader = new FileReader();
+
+      reader.addEventListener(`load`, () => {
+        img.src = reader.result;
+      });
+
+      reader.readAsDataURL(selectedFile);
+    }
   };
+};
 
-  reader.readAsDataURL(selectedFile);
+const resetPreview = () => {
+  userAvatarPicture.src = `img/muffin-grey.svg`;
+  userHousePicture.src = `img/muffin-grey.svg`;
 };
 
 const onSuccessPopupClick = (evt) => {
@@ -128,6 +145,7 @@ window.form = {
   onSuccessPopupClick,
   checkCheckoutValidity,
   onPictureLoad,
+  resetPreview,
   addressInput,
   fieldsets,
   form,
@@ -142,5 +160,7 @@ window.form = {
   successPopup,
   resetButton,
   userPictureInput,
-  userLoadedPicture
+  userAvatarPicture,
+  userHousePicture,
+  housePictureInput
 };

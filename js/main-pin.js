@@ -114,7 +114,8 @@ const onMainPinActivate = (evt) => {
     window.form.roomsInput.addEventListener(`change`, window.form.checkGuestsNumberValidity);
     window.form.guestsInput.addEventListener(`change`, window.form.checkGuestsNumberValidity);
     window.form.checkInAndOutFieldset.addEventListener(`change`, window.form.checkCheckoutValidity);
-    window.form.userPictureInput.addEventListener(`change`, window.form.onPictureLoad);
+    window.form.userPictureInput.addEventListener(`change`, window.form.onPictureLoad(window.form.userAvatarPicture));
+    window.form.housePictureInput.addEventListener(`change`, window.form.onPictureLoad(window.form.userHousePicture));
     window.form.resetButton.addEventListener(`click`, resetForm);
     window.form.form.addEventListener(`submit`, onFormSubmit);
     window.map.filtersContainer.addEventListener(`change`, window.debounce(window.pinsFilter.onFilterChange));
@@ -138,7 +139,8 @@ const onSuccessPost = () => {
   document.addEventListener(`mouseup`, window.form.onSuccessPopupClick);
   window.form.form.appendChild(newSeccessPopup);
   window.form.form.reset();
-  window.form.userLoadedPicture.src = `img/muffin-grey.svg`;
+  window.map.filtersContainer.reset();
+  window.form.resetPreview();
   mainPin.style.left = MAIN_PIN_LEFT;
   mainPin.style.top = MAIN_PIN_TOP;
   setMainPinAddress();
@@ -165,6 +167,10 @@ const onSuccessPost = () => {
 const resetForm = (evt) => {
   evt.preventDefault();
   window.form.form.reset();
+  window.map.filtersContainer.reset();
+  window.map.deletePins();
+  window.map.renderPins(window.load.response);
+  window.form.resetPreview();
   setMainPinAddress();
 };
 
