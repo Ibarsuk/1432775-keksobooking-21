@@ -7,11 +7,7 @@ const MAIN_PIN_TOP = mainPin.style.top;
 const setMainPinAddress = () => {
   const mainPinDiameter = mainPin.offsetWidth;
   const mainPinCoords = window.util.getChildElementCoords(mainPin, window.map.pinsContainer);
-  if (window.map.map.classList.contains(`map--faded`)) {
-    window.form.addressInput.value = `${Math.round(mainPinCoords.left + mainPinDiameter / 2)}, ${Math.round(mainPinCoords.top + mainPinDiameter / 2)}`;
-  } else {
-    window.form.addressInput.value = `${Math.round(mainPinCoords.left + mainPinDiameter / 2)}, ${Math.round(mainPinCoords.top + window.map.PIN_HEIGHT)}`;
-  }
+  window.form.addressInput.value = (window.map.map.classList.contains(`map--faded`)) ? `${Math.round(mainPinCoords.left + mainPinDiameter / 2)}, ${Math.round(mainPinCoords.top + mainPinDiameter / 2)}` : `${Math.round(mainPinCoords.left + mainPinDiameter / 2)}, ${Math.round(mainPinCoords.top + window.map.PIN_HEIGHT)}`;
 };
 
 const onMainPinDown = (downEvt) => {

@@ -144,11 +144,7 @@ const deleteAdpopup = () => {
 const renderAdPopup = (evt) => {
   if ((evt.target.classList.contains(`map__pin`) || evt.target.closest(`.map__pin:not(.map__pin--main)`)) && !evt.target.classList.contains(`map__pin--main`)) {
     let currentPin;
-    if (evt.target.classList.contains(`map__pin`)) {
-      currentPin = evt.target;
-    } else {
-      currentPin = evt.target.closest(`.map__pin:not(.map__pin--main)`);
-    }
+    currentPin = (evt.target.classList.contains(`map__pin`)) ? evt.target : evt.target.closest(`.map__pin:not(.map__pin--main)`);
     const ad = window.load.response.find((currentAd) => {
       return (`${currentAd.location.x - PIN_WIDTH / 2}px` === currentPin.style.left && `${currentAd.location.y - PIN_HEIGHT}px` === currentPin.style.top);
     });
