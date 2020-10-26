@@ -28,13 +28,9 @@ const renderPin = (index, pinsArr) => {
 
 const renderPins = (pinsArr) => {
   const fragment = document.createDocumentFragment();
-  for (let i = 0; i < PINS_ON_MAP; i++) {
-    try {
-      fragment.appendChild(renderPin(i, pinsArr));
-    } catch (err) {
-      break;
-    }
-  }
+  pinsArr.slice(0, PINS_ON_MAP).forEach((element, i) => {
+    fragment.appendChild(renderPin(i, pinsArr));
+  });
   pinsContainer.appendChild(fragment);
 };
 
@@ -46,11 +42,11 @@ const deletePins = () => {
 };
 
 const deleteFeatures = (featuresArr, adFeatures, newCard) => {
-  for (let i = 0; i < featuresArr.length; i++) {
-    if (!adFeatures.includes(featuresArr[i], 0)) {
-      newCard.querySelector(`.popup__feature--${featuresArr[i]}`).remove();
+  featuresArr.forEach((element) => {
+    if (!adFeatures.includes(element, 0)) {
+      newCard.querySelector(`.popup__feature--${element}`).remove();
     }
-  }
+  });
 };
 
 const insertPhotos = (newCard, photosArr) => {
@@ -62,11 +58,11 @@ const insertPhotos = (newCard, photosArr) => {
   const templateImg = oldImg.cloneNode(true);
   oldImg.src = photosArr[0];
   const fragment = document.createDocumentFragment();
-  for (let i = 1; i < photosArr.length; i++) {
+  photosArr.slice(1).forEach((element) => {
     const newImg = templateImg.cloneNode(false);
-    newImg.src = photosArr[i];
+    newImg.src = element;
     fragment.appendChild(newImg);
-  }
+  });
   newCard.querySelector(`.popup__photos`).appendChild(fragment);
 };
 
@@ -92,32 +88,38 @@ const onErrorGet = (errorMessage) => {
   const tryButton = newError.querySelector(`.error__button`);
   const closeButton = document.createElement(`button`);
 
-  const closePopup = (evt) => {
-    if (evt.button === 0 || evt.key === `Escape`) {
-      pinsContainer.querySelector(`.error`).remove();
-      closeButton.removeEventListener(`click`, closePopup);
-      document.removeEventListener(`keyup`, closePopup);
-    }
+  const closePopup = () => {
+    pinsContainer.querySelector(`.error`).remove();
+    closeButton.removeEventListener(`click`, onPopupCloseClick);
+    document.removeEventListener(`keyup`, onPopupEscapeDown);
   };
 
-  const tryAgain = (evt) => {
-    closePopup(evt);
+  const onPopupEscapeDown = (evt) => {
+    window.util.isKeyPressed(evt, closePopup, `Escape`);
+  };
+
+  const onPopupCloseClick = (evt) => {
+    window.util.isMouseMainButtonClick(evt, closePopup);
+  };
+
+  const onReload = () => {
+    closePopup();
     if (window.load.loadType === `GET`) {
       window.load.load(window.load.GET_URL, `GET`, window.map.renderPins, window.map.onErrorGet);
     } else {
       window.load.load(window.load.POST_URL, `POST`, window.mainPin.onSuccessPost, window.map.onErrorGet, new FormData(window.form.form));
     }
-    tryButton.removeEventListener(`click`, tryAgain);
+    tryButton.removeEventListener(`click`, onReload);
   };
 
   newError.querySelector(`.error__message`).textContent = errorMessage;
 
-  tryButton.addEventListener(`click`, tryAgain);
+  tryButton.addEventListener(`click`, onReload);
 
   closeButton.classList.add(`error__button`);
   closeButton.textContent = `Закрыть`;
-  closeButton.addEventListener(`click`, closePopup);
-  document.addEventListener(`keyup`, closePopup);
+  closeButton.addEventListener(`click`, onPopupCloseClick);
+  document.addEventListener(`keyup`, onPopupEscapeDown);
   newError.appendChild(closeButton);
 
   pinsContainer.appendChild(newError);
@@ -127,12 +129,22 @@ const onSuccessGet = (response) => {
   window.load.response = response;
 };
 
-const closeAdPopup = (popup, evt) => {
-  if (evt.button === 0 || evt.key === `Escape`) {
-    popup.removeEventListener(`click`, closeAdPopup);
-    document.removeEventListener(`keyup`, closeAdPopup);
-    popup.remove();
-  }
+const closeAdPopup = (popup) => {
+  popup.removeEventListener(`click`, onAdPopupCloseClick);
+  document.removeEventListener(`keyup`, onAdPopupEscapeDown);
+  popup.remove();
+};
+
+const onAdPopupEscapeDown = (popup) => {
+  return (evt) => {
+    window.util.isKeyPressed(evt, closeAdPopup.bind(null, popup), `Escape`);
+  };
+};
+
+const onAdPopupCloseClick = (popup) => {
+  return (evt) => {
+    window.util.isMouseMainButtonClick(evt, closeAdPopup.bind(null, popup));
+  };
 };
 
 const deleteAdpopup = () => {
@@ -141,7 +153,7 @@ const deleteAdpopup = () => {
   }
 };
 
-const renderAdPopup = (evt) => {
+const onAdPopupOpen = (evt) => {
   if ((evt.target.classList.contains(`map__pin`) || evt.target.closest(`.map__pin:not(.map__pin--main)`)) && !evt.target.classList.contains(`map__pin--main`)) {
     let currentPin;
     currentPin = (evt.target.classList.contains(`map__pin`)) ? evt.target : evt.target.closest(`.map__pin:not(.map__pin--main)`);
@@ -152,8 +164,8 @@ const renderAdPopup = (evt) => {
     deleteAdpopup();
     map.appendChild(renderCardPopup(ad));
     adPopup = map.querySelector(`.map__card`);
-    adPopup.querySelector(`.popup__close`).addEventListener(`click`, closeAdPopup.bind(null, adPopup));
-    document.addEventListener(`keyup`, closeAdPopup.bind(null, adPopup));
+    adPopup.querySelector(`.popup__close`).addEventListener(`click`, onAdPopupCloseClick(adPopup));
+    document.addEventListener(`keyup`, onAdPopupEscapeDown(adPopup));
   }
 };
 
@@ -175,6 +187,6 @@ window.map = {
   roomsFilter,
   guestsFilter,
   checkboxFilterList,
-  renderAdPopup,
+  onAdPopupOpen,
   deleteAdpopup
 };

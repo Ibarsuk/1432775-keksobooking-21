@@ -1,5 +1,7 @@
 'use strict';
 
+const MAIN_MOUSE_BUTTON_CODE = 0;
+
 const offersTypes = {
   flat: `Квартира `,
   bungalow: `Бунгало `,
@@ -58,10 +60,24 @@ const getChildElementCoords = (child, parent) => {
   };
 };
 
+const isMouseMainButtonClick = (evt, cb) => {
+  if (evt.button === MAIN_MOUSE_BUTTON_CODE) {
+    cb();
+  }
+};
+
+const isKeyPressed = (evt, cb, keyName) => {
+  if (evt.key === keyName) {
+    cb();
+  }
+};
+
 window.util = {
   getRandomInt,
   getCoords,
   getChildElementCoords,
+  isMouseMainButtonClick,
+  isKeyPressed,
   offersTypes,
   minPrices,
   possibleFeatures

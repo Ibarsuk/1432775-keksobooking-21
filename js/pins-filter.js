@@ -1,5 +1,8 @@
 'use strict';
 
+const MAX_LOW_PRICE = 10000;
+const MIN_HIGH_PRICE = 50000;
+
 const onFilterChange = () => {
 
   let filteredAds = window.load.response;
@@ -14,11 +17,11 @@ const onFilterChange = () => {
     filteredAds = filteredAds.filter((ad) => {
       switch (window.map.priceFilter.value) {
         case `middle`:
-          return (ad.offer.price >= 10000 && ad.offer.price <= 50000);
+          return (ad.offer.price >= MAX_LOW_PRICE && ad.offer.price <= MIN_HIGH_PRICE);
         case `low`:
-          return ad.offer.price < 10000;
+          return ad.offer.price < MAX_LOW_PRICE;
         case `high`:
-          return ad.offer.price > 50000;
+          return ad.offer.price > MIN_HIGH_PRICE;
         default:
           return true;
       }
@@ -62,11 +65,11 @@ const onFilterChange = () => {
     }
   ];
 
-  for (let i = 0; i < filtersList.length; i++) {
-    if (filtersList[i].name.value !== `any`) {
-      filtersList[i].function();
+  filtersList.forEach((element) => {
+    if (element.name.value !== `any`) {
+      element.function();
     }
-  }
+  });
 
   for (let checkbox of window.map.checkboxFilterList) {
     if (checkbox.checked) {

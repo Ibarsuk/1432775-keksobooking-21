@@ -1,6 +1,7 @@
 'use strict';
 
-
+const ROOMS_INPUT_MAX_VALUE = `100`;
+const GUEST_INPUT_MIN_VALUE = `0`;
 const form = document.querySelector(`.ad-form`);
 const addressInput = form.querySelector(`#address`);
 const titleInput = form.querySelector(`#title`);
@@ -18,8 +19,9 @@ const successPopup = document.querySelector(`#success`).content.querySelector(`.
 const resetButton = form.querySelector(`.ad-form__reset`);
 const userAvatarPicture = form.querySelector(`.ad-form-header__preview img`);
 const userHousePicture = form.querySelector(`.ad-form-header__preview--house-picture img`);
+const main = document.querySelector(`main`);
 
-const checkTitleValidity = () => {
+const onTitleValidityCheck = () => {
   const minLength = titleInput.minLength;
   const maxLength = titleInput.maxLength;
   const currentLength = titleInput.value.length;
@@ -36,19 +38,19 @@ const checkTitleValidity = () => {
 const getMinPriceAndType = () => {
   let minPrice = 0;
   let currentType = ``;
-  for (let i = 0; i < window.util.minPrices.length; i++) {
-    if (typeInput.value === window.util.minPrices[i].type) {
-      minPrice = window.util.minPrices[i].minPrice;
-      currentType = window.util.offersTypes[window.util.minPrices[i].type];
+  window.util.minPrices.forEach((element) => {
+    if (typeInput.value === element.type) {
+      minPrice = element.minPrice;
+      currentType = window.util.offersTypes[element.type];
     }
-  }
+  });
   return {
     minPrices: minPrice,
     currentTypes: currentType
   };
 };
 
-const checkNightPriceValidity = () => {
+const onNightPriceValidityCheck = () => {
   const minPrice = getMinPriceAndType().minPrices;
   const currentType = getMinPriceAndType().currentTypes;
   if (Number(nightPriceInput.value) < minPrice) {
@@ -64,24 +66,24 @@ const checkNightPriceValidity = () => {
 const onNightPriceChange = () => {
   nightPriceInput.placeholder = `${getMinPriceAndType().minPrices}`;
   if (nightPriceInput.value.length > 0) {
-    checkNightPriceValidity();
+    onNightPriceValidityCheck();
   }
 };
 
 const disableGuestsOptions = () => {
   for (let option of guestsInput.children) {
-    option.disabled = (Number(option.value) > Number(roomsInput.value) || option.value === `0` || roomsInput.value === `100`);
+    option.disabled = (Number(option.value) > Number(roomsInput.value) || option.value === GUEST_INPUT_MIN_VALUE || roomsInput.value === ROOMS_INPUT_MAX_VALUE);
   }
 };
 
-const checkGuestsNumberValidity = () => {
+const onGuestsNumberValidityCheck = () => {
   disableGuestsOptions();
-  if (roomsInput.value === `100` && guestsInput.value !== `0`) {
+  if (roomsInput.value === ROOMS_INPUT_MAX_VALUE && guestsInput.value !== GUEST_INPUT_MIN_VALUE) {
     form.querySelector(`#capacity option[value="0"]`).disabled = false;
     guestsInput.setCustomValidity(`100 комнат не для гостей`);
-  } else if (roomsInput.value !== `100` && guestsInput.value === `0`) {
+  } else if (roomsInput.value !== ROOMS_INPUT_MAX_VALUE && guestsInput.value === GUEST_INPUT_MIN_VALUE) {
     guestsInput.setCustomValidity(`А для кого?`);
-  } else if (roomsInput.value === `100` && guestsInput.value === `0`) {
+  } else if (roomsInput.value === ROOMS_INPUT_MAX_VALUE && guestsInput.value === GUEST_INPUT_MIN_VALUE) {
     form.querySelector(`#capacity option[value="0"]`).disabled = false;
     guestsInput.setCustomValidity(``);
   } else if (Number(guestsInput.value) > Number(roomsInput.value)) {
@@ -92,7 +94,7 @@ const checkGuestsNumberValidity = () => {
   guestsInput.reportValidity();
 };
 
-const checkCheckoutValidity = () => {
+const onCheckoutValidityCheck = () => {
   if (checkinInput.value !== checkoutInput.value) {
     checkoutInput.setCustomValidity(`Если заезд после ${checkinInput.value}, то выезд до ${checkinInput.value}`);
   } else {
@@ -127,23 +129,30 @@ const resetPreview = () => {
   userHousePicture.src = `img/muffin-grey.svg`;
 };
 
+const deleteSuccessPopup = () => {
+  main.querySelector(`.success`).remove();
+  document.body.style.overflow = `visible`;
+  document.removeEventListener(`keydown`, onSuccessPopupEscapeDown);
+  document.removeEventListener(`mouseup`, onSuccessPopupClick);
+};
+
 const onSuccessPopupClick = (evt) => {
-  if (evt.button === 0 || evt.key === `Escape`) {
-    form.querySelector(`.success`).remove();
-    document.body.style.overflow = `visible`;
-    document.removeEventListener(`keydown`, onSuccessPopupClick);
-    document.removeEventListener(`mouseup`, onSuccessPopupClick);
-  }
+  window.util.isMouseMainButtonClick(evt, deleteSuccessPopup);
+};
+
+const onSuccessPopupEscapeDown = (evt) => {
+  window.util.isKeyPressed(evt, deleteSuccessPopup, `Escape`);
 };
 
 window.form = {
-  checkTitleValidity,
-  checkNightPriceValidity,
+  onTitleValidityCheck,
+  onNightPriceValidityCheck,
   onNightPriceChange,
-  checkGuestsNumberValidity,
+  onGuestsNumberValidityCheck,
   disableGuestsOptions,
   onSuccessPopupClick,
-  checkCheckoutValidity,
+  onSuccessPopupEscapeDown,
+  onCheckoutValidityCheck,
   onPictureLoad,
   resetPreview,
   addressInput,
@@ -162,5 +171,6 @@ window.form = {
   userPictureInput,
   userAvatarPicture,
   userHousePicture,
-  housePictureInput
+  housePictureInput,
+  main
 };
